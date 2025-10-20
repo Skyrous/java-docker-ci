@@ -32,10 +32,10 @@ jobs:
 
       # Step 5: Stop old container if exists
       - name: Stop previous container
-        shell: pwsh
+        shell: powershell
         run: |
           $container = docker ps -a -q -f name=java-docker-ci
-          if ($container) {
+          if ($container -ne $null -and $container -ne "") {
               docker stop java-docker-ci
               docker rm java-docker-ci
           } else {
@@ -44,13 +44,13 @@ jobs:
 
       # Step 6: Run container with host port mapping
       - name: Run container
-        shell: pwsh
+        shell: powershell
         run: |
           docker run -d --name java-docker-ci -p 9021:8080 java-docker-ci:${{ github.ref_name }}
 
       # Step 7: Test endpoint
       - name: Test endpoint
-        shell: pwsh
+        shell: powershell
         run: |
           Start-Sleep -Seconds 10
           curl -f http://localhost:9021 || exit 1
