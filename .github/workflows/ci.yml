@@ -38,10 +38,10 @@ jobs:
 
       # Step 6: Run the container
       - name: Run container
-        run: docker run -d --name java-docker-ci -p 8080:8080 java-docker-ci:${{ github.ref_name }}
+        run: docker run -d --name java-docker-ci -p 8080:9021 java-docker-ci:${{ github.ref_name }}
 
       # Step 7: Test the endpoint
       - name: Test endpoint
         run: |
           timeout 10s powershell -Command "Start-Sleep -Seconds 10"
-          curl -f http://localhost:8080 || exit 1
+          curl -f http://localhost:9021 || exit 1
