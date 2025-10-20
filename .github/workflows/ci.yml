@@ -2,40 +2,46 @@ name: Java Docker CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-run:
+    runs-on: [self-hosted, windows, docker]  # Your self-hosted Windows runner with Docker
 
     steps:
-      # Step 1: Checkout your code
+      # Step 1: Checkout the code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up JDK 22
+      # Step 2: Set up Java 22
       - name: Set up Java 22
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '22'
 
-      # Step 3: Build with Maven
+      # Step 3: Build the Spring Boot app with Maven
       - name: Build Spring Boot app
         run: mvn -B clean package
 
       # Step 4: Build Docker image
       - name: Build Docker image
-        run: docker build -t java-docker-ci:latest .
+        run: docker build -t java-docker-ci:${{ github.ref_name }} .
 
-      # (Optional) Step 5: Run container test
+      # Step 5: Stop old container if exists
+      - name: Stop previous container
+        run: |
+          docker stop java-docker-ci || echo "No existing container"
+          docker rm java-docker-ci || echo "No container to remove"
+
+      # Step 6: Run the container
       - name: Run container
-        run: docker run -d -p 8080:8080 java-docker-ci:latest
+        run: docker run -d --name java-docker-ci -p 8080:8080 java-docker-ci:${{ github.ref_name }}
 
-      # (Optional) Step 6: Check that it's up
+      # Step 7: Test the endpoint
       - name: Test endpoint
         run: |
-          sleep 10
+          timeout 10s powershell -Command "Start-Sleep -Seconds 10"
           curl -f http://localhost:8080 || exit 1
