@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
     @GetMapping("/")
     public String hello() {
-        return "🚀 Hello from Spring Boot running on Java 22!";
+        return "🚀 Hello from Spring Boot running on Java 22 for Gogoasa!";
     }
 }
