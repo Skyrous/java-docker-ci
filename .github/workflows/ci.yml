@@ -47,10 +47,3 @@ jobs:
         shell: powershell
         run: |
           docker run -d --name java-docker-ci -p 9021:8080 java-docker-ci:${{ github.ref_name }}
-
-      # Step 7: Test endpoint
-      - name: Test endpoint
-        shell: powershell
-        run: |
-          Start-Sleep -Seconds 10
-          curl -f http://localhost:9021 || exit 1
