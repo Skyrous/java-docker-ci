@@ -1,5 +1,5 @@
 # Use local base image
-FROM eclipse-temurin:22-jdk
+FROM openjdk:22-jdk
 
 WORKDIR /app
 
