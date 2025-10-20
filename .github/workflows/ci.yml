@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-run:
-    runs-on: [self-hosted, windows, docker]  # Your self-hosted Windows runner with Docker
+    runs-on: [self-hosted, Windows, X64]  # Your self-hosted Windows runner with Docker
 
     steps:
       # Step 1: Checkout the code
