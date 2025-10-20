@@ -32,9 +32,14 @@ jobs:
 
       # Step 5: Stop old container if exists
       - name: Stop previous container
+        shell: pwsh
         run: |
-          docker stop java-docker-ci || echo "No existing container"
-          docker rm java-docker-ci || echo "No container to remove"
+          if (docker ps -a -q -f name=java-docker-ci) {
+          docker stop java-docker-ci
+          docker rm java-docker-ci
+          } else {
+          Write-Host "No existing container"
+         }
 
       # Step 6: Run the container
       - name: Run container
