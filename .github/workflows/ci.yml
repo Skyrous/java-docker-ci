@@ -8,10 +8,10 @@ on:
 
 jobs:
   build-and-run:
-    runs-on: [self-hosted, Windows, X64]  # Your self-hosted Windows runner with Docker
+    runs-on: [self-hosted, Windows, X64]
 
     steps:
-      # Step 1: Checkout the code
+      # Step 1: Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -22,31 +22,35 @@ jobs:
           distribution: 'temurin'
           java-version: '22'
 
-      # Step 3: Build the Spring Boot app with Maven
+      # Step 3: Build Spring Boot JAR
       - name: Build Spring Boot app
         run: mvn -B clean package
 
-      # Step 4: Build Docker image
+      # Step 4: Build Docker image locally
       - name: Build Docker image
-        run: docker build -t java-docker-ci:${{ github.ref_name }} .
+        run: docker build --pull=false -t java-docker-ci:${{ github.ref_name }} .
 
       # Step 5: Stop old container if exists
       - name: Stop previous container
         shell: pwsh
         run: |
-          if (docker ps -a -q -f name=java-docker-ci) {
-          docker stop java-docker-ci
-          docker rm java-docker-ci
+          $container = docker ps -a -q -f name=java-docker-ci
+          if ($container) {
+              docker stop java-docker-ci
+              docker rm java-docker-ci
           } else {
-          Write-Host "No existing container"
-         }
+              Write-Host "No existing container"
+          }
 
-      # Step 6: Run the container
+      # Step 6: Run container with host port mapping
       - name: Run container
-        run: docker run -d --name java-docker-ci -p 8080:9021 java-docker-ci:${{ github.ref_name }}
-
-      # Step 7: Test the endpoint
-      - name: Test endpoint
+        shell: pwsh
         run: |
-          timeout 10s powershell -Command "Start-Sleep -Seconds 10"
+          docker run -d --name java-docker-ci -p 9021:8080 java-docker-ci:${{ github.ref_name }}
+
+      # Step 7: Test endpoint
+      - name: Test endpoint
+        shell: pwsh
+        run: |
+          Start-Sleep -Seconds 10
           curl -f http://localhost:9021 || exit 1
